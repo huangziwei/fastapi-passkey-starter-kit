@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     session_cookie_samesite: str = "lax"
     session_cookie_domain: str | None = None
     challenge_ttl_minutes: int = 10
+    enable_builtin_ui: bool = True
+    cors_allow_origins: str | None = None
 
     webauthn_rp_id: str = "localhost"
     webauthn_rp_name: str = "FastAPI Passkey Starter"

@@ -5,10 +5,19 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
 from app.db import Base, SessionLocal, engine
-from app.routers import admin, auth, pages, passkeys
+from app.routers import admin, auth, passkeys
 from app.services.settings_service import ensure_default_settings
 
 settings = get_settings()
+
+
+def _parse_allowed_origins() -> list[str]:
+    if settings.cors_allow_origins:
+        values = [item.strip() for item in settings.cors_allow_origins.split(",")]
+        origins = [item for item in values if item]
+        if origins:
+            return origins
+    return [settings.webauthn_origin]
 
 
 @asynccontextmanager
@@ -26,7 +35,7 @@ app = FastAPI(title="FastAPI Passkey Starter Kit", version="0.1.0", lifespan=lif
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.webauthn_origin],
+    allow_origins=_parse_allowed_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -41,4 +50,7 @@ def health() -> dict[str, bool]:
 app.include_router(auth.router)
 app.include_router(passkeys.router)
 app.include_router(admin.router)
-app.include_router(pages.router)
+if settings.enable_builtin_ui:
+    from app.routers import pages
+
+    app.include_router(pages.router)

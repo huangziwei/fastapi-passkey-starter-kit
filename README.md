@@ -25,13 +25,24 @@ Starter architecture for a FastAPI user system with passkeys as the only authent
    - `uv run python scripts/create_bootstrap_token.py --expires-in-minutes 120`
 3. Run API:
    - `uv run uvicorn app.main:app --reload`
-4. Open pages:
+4. Open built-in pages (optional):
+   - `http://localhost:8000/` (redirects to login)
    - `http://localhost:8000/signup`
    - `http://localhost:8000/admin_signup`
    - `http://localhost:8000/login`
    - `http://localhost:8000/passkeys`
    - `http://localhost:8000/admin`
    - `http://localhost:8000/me`
+
+### API/UI separation
+
+- API routes are always available under `/api/*`.
+- Built-in frontend routes are optional and can be disabled:
+  - `APP_ENABLE_BUILTIN_UI=false`
+- Built-in frontend templates live in `templates/` and are meant to be edited/replaced.
+- For separate frontend deployments, set origin/cors explicitly:
+  - `APP_WEBAUTHN_ORIGIN=https://your-frontend.example.com`
+  - `APP_CORS_ALLOW_ORIGINS=https://your-frontend.example.com,https://admin.example.com`
 
 ### HTTPS and localhost
 
@@ -140,7 +151,7 @@ If a user loses all passkeys, the account is unrecoverable by design.
   - `POST /api/admin/signup-tokens`
   - `GET /api/admin/signup-tokens`
 
-## Prototype Web Routes
+## Prototype Web Routes (`APP_ENABLE_BUILTIN_UI=true`)
 
 - `GET /signup`: user signup form (username + optional token + browser passkey prompt).
 - `GET /admin_signup`: privileged signup form (username + required token + browser passkey prompt).
